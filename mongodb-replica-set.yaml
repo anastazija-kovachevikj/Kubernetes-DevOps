@@ -1,0 +1,51 @@
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: example-mongodb
+  namespace: dev
+spec:
+  members: 2
+  type: ReplicaSet
+  version: "6.0.5"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: root
+      db: admin
+      passwordSecretRef:
+        name: my-user-password
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+        - name: readWrite
+          db: test
+        - name: readWrite
+          db: VinozitoDB
+
+      scramCredentialsSecretName: my-scram
+  additionalMongodConfig:
+    storage.wiredTiger.engineConfig.journalCompressor: zlib
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-user-password
+  namespace: dev
+type: Opaque
+stringData:
+  password: "example"
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  
+  
